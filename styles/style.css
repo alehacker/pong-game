@@ -24,6 +24,7 @@ body {
     width: 500px;
     height: 200px;
   }
+
   
   
   body button {
@@ -39,11 +40,15 @@ body {
   
   #game-board {
       /* float: left; */
-      padding: 20px 0px;
+      padding: 10px;
+  }
+
+  #game-board p{
+    font-size: 30px;
   }
   
   canvas{
-    border: 1px solid;
-    background-color: black;
+    border: 30px solid;
+    background-color: #030000;
   
   }
