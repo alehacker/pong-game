@@ -107,19 +107,17 @@ function resetBall(){
 }
 
 function collision(b,p){
-  // console.log('inside collision func', p)
+
   p.top = p.positionY;
   p.bottom = p.positionY + p.height;
   p.left = p.positionX;
   p.right = p.positionX + p.width;
 
   b.top = b.y- b.radius;
-  b.bottom = b.x + b.radius;
-  b.left = b.y - b.radius
+  b.bottom = b.y + b.radius;
+  b.left = b.x - b.radius
   b.right = b.x + b.radius
 
-  // console.log("PlAYER TOP", p.top)
-  // console.log("PlAYER Right", p.right)
 
   return b.right > p.left && b.top < p.bottom && b.left < p.right && b.bottom > p.top;
 
@@ -137,26 +135,38 @@ function updateCanvas(){
   if (ball.x < (canvas.width/2)){
     
     player = leftPlayer;
-    console.log('this is left player', player)
+
+
     
   } else {
     player = rightPlayer;
-    // console.log('this is right player', player)
+
   }
 
   // console.log(player)
 
   //check collision
   if (collision(ball, player)){
-    let collidePoint = (ball.y - (player.positionY + player.height/2));
+    let collidePoint = (ball.y - (player.positionY + (player.height/2)));
     collidePoint = collidePoint/(player.height/2);
+    console.log("collide point", player)
+
 
     let angleRad = (Math.PI/4)*collidePoint;
     
     if (ball.x < canvas.width/2){
+    
+      console.log("flip")
+      console.log("ball x", ball.x)
+      console.log("canvas width", canvas.width)
       direction = 1;
-    } else{
+    } else {
+
+      // console.log("ball x", ball.x)
+      // console.log("canvas width", canvas.width)
+      console.log("other side")
       direction = -1;
+  
     }
 
     ball.velocityX = direction * ball.speed * Math.cos(angleRad);
@@ -168,6 +178,7 @@ function updateCanvas(){
   //changing score
 
   if (ball.x - ball.radius < 0){
+    console.log("Ball", ball)
     rightPlayer.score++;
     resetBall();
   }else if (ball.x + ball.radius > canvas.width){
@@ -284,6 +295,57 @@ function drawEverything(){
 //   this.y = this.y + 5
 // },
 
+// this is to click "start" button
+// document.getElementById('start-button').onclick = () => {
+  //     if (gameOn === false) {
+  //       startGame();
+  //     }
+  //   };
+
+
+
+// function startGame() {
+//   gameOn = true
+
+//   obstaclesArray= []
+//   player.x = startingX
+//   player.y = startingY
+
+//   ctx.drawImage(road, 0, 0, 500, 700);
+//   player.draw();
+//   createObstacle();
+//   animationLoop();
+// }
+
+// function gameOver(){
+//   gameOn = false
+
+
+//   console.log("Game over")
+//   clearInterval(animationId)
+//   clearInterval(intervalId)
+
+//   ctx.clearRect(0, 0, 500, 700);
+//   ctx.fillStyle = 'black'
+//   ctx.fillRect(0, 0, 500, 700);
+  
+
+//   if (score > 14) {
+//     ctx.fillStyle = "white"
+//     ctx.font = '40px serif'
+//     ctx.fillText("You've won!", 150, 200)
+//   } else {
+//     ctx.fillStyle = "white"
+//     ctx.font = '40px serif'
+//     ctx.fillText("You lose!", 150, 200)
+//   }
+  
+//   obstaclesArray = []
+//   score = 0;
+
+ 
+// }
+
 
 
 //**************************/
@@ -311,11 +373,5 @@ function drawEverything(){
 
 // }
 
-// this is to click "start" button
-// document.getElementById('start-button').onclick = () => {
-  //     if (gameOn === false) {
-  //       startGame();
-  //     }
-  //   };
 
 
