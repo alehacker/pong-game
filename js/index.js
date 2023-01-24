@@ -12,6 +12,7 @@ let bounceSound = document.createElement('audio');
 bounceSound.src = "../sounds/pongbounce.wav";
 
 let cheerSound = document.createElement('audio')
+cheerSound.src = "../sounds/cheer.wav"
 
 let offGridSound = document.createElement('audio')
 offGridSound.src = "../sounds/bounceoff.wav"
@@ -185,7 +186,6 @@ function updateCanvas(){
   // Figuring higher score for winner
   if (rightPlayer.score  === 3 || leftPlayer.score === 3 ){
     gameOver()
-    console.log('accessed gameOver function')
   }
 
 
@@ -242,7 +242,7 @@ function drawEverything(){
  drawRect(rightPlayer.positionX, rightPlayer.positionY, rightPlayer.width, rightPlayer.height, rightPlayer.color)
  
   // the ball
-  drawBall(ball.x, ball.y, 10, 'white');
+ drawBall(ball.x, ball.y, 10, 'white');
  
 }
 
@@ -252,11 +252,11 @@ function drawEverything(){
 function startGame() {
 
   if (gameOn === false){
-    
     gameOn = true
     gameLoop()
     drawArena()
   }
+
   startDiv.style.display = "none";
   canvas.style.display = "block";
   gameEnded.style.display = "none";
@@ -282,27 +282,26 @@ function gameOver() {
     //play fanfare sound here
     cheerSound.play();
     ctx.fillStyle = "white"
-    ctx.font = '50px serif'
+    ctx.font = '60px serif'
     ctx.fillText(`Left Player is the winner! Score: ${leftPlayer.score}`, 90, 250)
     console.log('left player won')
-    startDiv.style.display = "none";
-    canvas.style.display = "none";
-    gameEnded.style.display = "block";
+
   } else {
     //play fanfare sound here
     cheerSound.play();
+    console.log('sound played or not?')
     ctx.fillStyle = "white"
     ctx.font = '60px serif'
     ctx.fillText(`Right Player is the winner! Score: ${rightPlayer.score}`, 90, 250)
     console.log('rigth player won')
-    startDiv.style.display = "none";
-    canvas.style.display = "none";
-    gameEnded.style.display = "block";
     
   }
 
   leftPlayer.score = 0
   rightPlayer.score = 0
+
+  startDiv.style.display = "none";
+  gameEnded.style.display = "block";
   
   
 }
@@ -343,35 +342,3 @@ window.onload = () => {
     });
   
 }
-
-
-
-
-
-//**************************/
-//******* TRASH ************/
-//**************************/
-
-//I don't need this for now...
-// function moveEverything(){
-//   ballX = ballX + ballSpeedX;
-//   ballY = ballY + ballSpeedY;
-
-//   if (ballX < 0){
-//     ballSpeedX = -ballSpeedX;
-//   }
-//   if (ballX > canvas.width){
-//     ballSpeedX = -ballSpeedX;
-//   }
-
-//   if (ballY < 0){
-//     ballSpeedY= -ballSpeedY;
-//   }
-//   if (ballY> canvas.height){
-//     ballSpeedY= -ballSpeedY;
-//   }
-
-// }
-
-
-

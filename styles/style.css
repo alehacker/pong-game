@@ -11,6 +11,7 @@ body {
     text-align: center;
     display: flex;
     flex-direction: column;
+    justify-content: center;
   }
   
   .game-intro {
@@ -61,13 +62,20 @@ body {
   }
   
   #game-board {
-      padding: 180px 315px;
+      padding: 100px 315px;
+      margin-bottom: 10px;
+      display: flex;
       align-content: center;
   }
 
   #game-board p{
     padding: 10px;
     font-size: 30px;
+    margin-bottom: 0px;
+  }
+
+  #game-over{
+    padding-top: 0px;
   }
   
   canvas{
