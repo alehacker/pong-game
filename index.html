@@ -11,26 +11,30 @@
 
 <body>
 
-   <div>
+   <div id ="start-screen">
         <img src="../images/ponglogo.png" alt="Pong Logo" class="logo-img" />
-        <br/> 
+        <br/>  
+        <div class="game-intro">
+            <button id="start-button">StartGame</button>
+            <p>Player 1 will use W and S keys to move side to side</p>
+            <br/>
+            <p>Player 2 will use Up and Down keys to move side to side</p>
+        </div>
    </div>
 
 
     <div id="game-board">
         
-        <canvas id="canvas" width="1000" height="500"></canvas>
+        <canvas id="canvas" width="1000" height="500" style = "display: none;"></canvas>
         
     </div>
 
-    <div class="game-intro">
-        
-        <button id="start-button">StartGame</button>
-        <p>Player 1 will use W and S keys to move side to side</p>
-        <br/>
-        <p>Player 2 will use Up and Down keys to move side to side</p>
-        <!-- <img src="./images/arrows.png" alt="" class="arrows-img" /> -->
+    <div id="game-over" style="display:none">
+        <h1>Game Over</h1>
+        <button id="restart-button">StartGame</button>
     </div>
+
+  
 
     
     <script type="text/javascript" src="../js/index.js"></script>

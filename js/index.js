@@ -1,10 +1,22 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
+let startDiv = document.getElementById("start-screen");
+let gameEnded = document.getElementById("game-over");
 
- gameOn = false;
 
+gameOn = false;
 
+// Sounds for the game
+let bounceSound = document.createElement('audio');
+bounceSound.src = "../sounds/pongbounce.wav";
+
+let cheerSound = document.createElement('audio')
+
+let offGridSound = document.createElement('audio')
+offGridSound.src = "../sounds/bounceoff.wav"
+
+// The ball and its properties
 const ball = {
   x: canvas.width/2,
   y: canvas.height/2,
@@ -18,6 +30,8 @@ const ball = {
 
 let player
 let direction
+
+// Players and their properties
 
 const leftPlayer = {
   positionX: 10,
@@ -64,6 +78,7 @@ const rightPlayer = {
   },
 }
 
+//Updated Canvas loop
 let framesPerSecond = 30;
 function gameLoop(){
   gameIntervalId = setInterval(()=>{
@@ -73,6 +88,7 @@ function gameLoop(){
   }, 1000/framesPerSecond);
 }
 
+// Drawing loop
 function drawArena(){
   arenaIntervalId = setInterval(()=>{
     drawEverything()
@@ -81,7 +97,7 @@ function drawArena(){
 }
 
 
-
+//resetting ball after fall or score
 function resetBall(){
   ball.x = canvas.width/2
   ball.y= canvas.height/2
@@ -89,7 +105,8 @@ function resetBall(){
   ball.velocityX = -ball.velocityX
 }
 
-function collission(b,p){
+//Detection of collision
+function collision(b,p){
 
   p.top = p.positionY;
   p.bottom = p.positionY + p.height;
@@ -106,6 +123,8 @@ function collission(b,p){
 
 }
 
+//Update Canvas function
+
 function updateCanvas(){
   //incrementing x and y position of the ball
   ball.x += ball.velocityX;
@@ -113,6 +132,8 @@ function updateCanvas(){
 
   if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0){
     //play bounce sound here
+    bounceSound.play();
+
     ball.velocityY = -ball.velocityY
   }
   //identifying which side the ball is
@@ -122,11 +143,13 @@ function updateCanvas(){
     player = rightPlayer;
   }
 
-  // console.log(player)
 
-  //check collission
-  if (collission(ball, player)){
+  //check collision
+  if (collision(ball, player)){
     //play bounce sound here
+    bounceSound.play();
+
+    //checking how it collide to change direction and change speed
     let collidePoint = (ball.y - (player.positionY + (player.height/2)));
     collidePoint = collidePoint/(player.height/2);
 
@@ -150,22 +173,23 @@ function updateCanvas(){
   if (ball.x - ball.radius < 0){
     // console.log("Ball", ball)
     //play bounce out sounde/ score sound
+    offGridSound.play();
     rightPlayer.score++;
     resetBall();
   }else if (ball.x + ball.radius > canvas.width){
     //play bounce out sounde/ score sound
+    offGridSound.play();
     leftPlayer.score++;
     resetBall();
   }
-
-  if (rightPlayer.score  === 1  || leftPlayer.score === 1){
+  // Figuring higher score for winner
+  if (rightPlayer.score  === 3 || leftPlayer.score === 3 ){
     gameOver()
     console.log('accessed gameOver function')
   }
 
 
 }
-
 
 
 
@@ -197,9 +221,7 @@ function drawNet(){
   ctx.stroke();
 }
 
-
-
-
+//This functions draws all the elements of the game: paddles, net, ball
 
 function drawEverything(){
   //the arena
@@ -225,21 +247,22 @@ function drawEverything(){
 }
 
 
+// startGame Function
 
 function startGame() {
 
   if (gameOn === false){
-    console.log("GameOn at the beginning of startGame", gameOn)
+    
     gameOn = true
-    console.log("GameOn after change value", gameOn)
     gameLoop()
     drawArena()
   }
-
-
-
+  startDiv.style.display = "none";
+  canvas.style.display = "block";
+  gameEnded.style.display = "none";
 }
 
+// gameOver Function
 
 function gameOver() {
   gameOn = false
@@ -248,10 +271,6 @@ function gameOver() {
 //resest everything : score, ball position, ball speed...
   clearInterval(gameIntervalId)
   clearInterval(arenaIntervalId)
-
-  console.log("Game over")
-  console.log("GameOn", gameOn)
-  
   
   ctx.clearRect(0,0,1000,500)
   ctx.fillStyle = 'black'
@@ -261,31 +280,47 @@ function gameOver() {
   
   if (leftPlayer.score > rightPlayer.score) {
     //play fanfare sound here
+    cheerSound.play();
     ctx.fillStyle = "white"
     ctx.font = '50px serif'
     ctx.fillText(`Left Player is the winner! Score: ${leftPlayer.score}`, 90, 250)
+    console.log('left player won')
+    startDiv.style.display = "none";
+    canvas.style.display = "none";
+    gameEnded.style.display = "block";
   } else {
     //play fanfare sound here
+    cheerSound.play();
     ctx.fillStyle = "white"
     ctx.font = '60px serif'
     ctx.fillText(`Right Player is the winner! Score: ${rightPlayer.score}`, 90, 250)
+    console.log('rigth player won')
+    startDiv.style.display = "none";
+    canvas.style.display = "none";
+    gameEnded.style.display = "block";
+    
   }
 
   leftPlayer.score = 0
   rightPlayer.score = 0
+  
   
 }
 
 window.onload = () => {
 
   document.getElementById('start-button').onclick = () => {
-
       if (gameOn === false) {
         console.log('starting game')
-        //play starting music
         startGame();
       }
   };
+  document.getElementById('restart-button').onclick = () => {
+    if (gameOn === false) {
+      console.log('re-starting game')
+      startGame();
+    }
+};
 
 
 
