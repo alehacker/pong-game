@@ -2,7 +2,7 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
 
-//  gameOn = false;
+ gameOn = false;
 
 
 const ball = {
@@ -64,46 +64,23 @@ const rightPlayer = {
   },
 }
 
-const keyPressed = {
-  W: false,
-  S: false,
-  Up: false,
-  Down: false
+let framesPerSecond = 30;
+function gameLoop(){
+  gameIntervalId = setInterval(()=>{
+    updateCanvas()
+    // console.log('update all')
+
+  }, 1000/framesPerSecond);
+}
+
+function drawArena(){
+  arenaIntervalId = setInterval(()=>{
+    drawEverything()
+    // console.log(' draw all')
+  }, 1000/framesPerSecond);
 }
 
 
-
-
-
-window.onload = () => {
-
-  document.getElementById('start-button').onclick = () => {
-      if (gameOn === false) {
-        startGame();
-      }
-  };
-
-
-
-  document.addEventListener('keydown', e => {
-      switch (e.keyCode) {
-        case 38:
-          rightPlayer.moveUp();
-          break;
-        case 40:
-          rightPlayer.moveDown();
-          break;
-        case 87:
-          leftPlayer.moveUp();
-          break;
-        case 83:
-          leftPlayer.moveDown();
-          break;
-      }
-    
-    });
-  
-}
 
 function resetBall(){
   ball.x = canvas.width/2
@@ -135,6 +112,7 @@ function updateCanvas(){
   ball.y += ball.velocityY;
 
   if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0){
+    //play bounce sound here
     ball.velocityY = -ball.velocityY
   }
   //identifying which side the ball is
@@ -148,9 +126,9 @@ function updateCanvas(){
 
   //check collission
   if (collission(ball, player)){
+    //play bounce sound here
     let collidePoint = (ball.y - (player.positionY + (player.height/2)));
     collidePoint = collidePoint/(player.height/2);
-    console.log("collide point", player)
 
 
     let angleRad = (Math.PI/4)*collidePoint;
@@ -167,17 +145,22 @@ function updateCanvas(){
     ball.speed +=1;
   }
 
-
-
   //changing score
 
   if (ball.x - ball.radius < 0){
     // console.log("Ball", ball)
+    //play bounce out sounde/ score sound
     rightPlayer.score++;
     resetBall();
   }else if (ball.x + ball.radius > canvas.width){
+    //play bounce out sounde/ score sound
     leftPlayer.score++;
     resetBall();
+  }
+
+  if (rightPlayer.score  === 1  || leftPlayer.score === 1){
+    gameOver()
+    console.log('accessed gameOver function')
   }
 
 
@@ -218,24 +201,17 @@ function drawNet(){
 
 
 
-
-
 function drawEverything(){
   //the arena
   drawRect(0, 0, canvas.width, canvas.height, 'black');
   
-  
+  //The Net
   drawNet();
-  console.log('drawing net')
 
   //The score
   drawText(leftPlayer.score, canvas.width/4, canvas.height/5, "white")
   drawText(rightPlayer.score, 3*canvas.width/4, canvas.height/5, "white")
 
-  //the lines in the middle
-  
-  // drawDashedLine([10, 10]);
-  // console.log('drawing net') 
 
  // left paddle
  drawRect(leftPlayer.positionX, leftPlayer.positionY, leftPlayer.width, leftPlayer.height, leftPlayer.color)
@@ -252,18 +228,15 @@ function drawEverything(){
 
 function startGame() {
 
-  gameOn = true
-  let framesPerSecond = 30;
+  if (gameOn === false){
+    console.log("GameOn at the beginning of startGame", gameOn)
+    gameOn = true
+    console.log("GameOn after change value", gameOn)
+    gameLoop()
+    drawArena()
+  }
 
-  setInterval(() => {
 
-    drawEverything()
-    // console.log('draw all')
-
-    updateCanvas()
-    // console.log('update all')
-
-  }, 1000/framesPerSecond);
 
 }
 
@@ -273,82 +246,70 @@ function gameOver() {
 
 
 //resest everything : score, ball position, ball speed...
-  clearInterval(animationId)
-  clearInterval(intervalId)
+  clearInterval(gameIntervalId)
+  clearInterval(arenaIntervalId)
 
   console.log("Game over")
+  console.log("GameOn", gameOn)
   
   
-  ctx.clearRect(0,0,500,700)
+  ctx.clearRect(0,0,1000,500)
   ctx.fillStyle = 'black'
-  ctx.fillRect(0,0,500,700)
+  ctx.fillRect(0,0,1000,500)
 
   //declare winner below compare leftPaddle.score to rightPaddle.score
   
   if (leftPlayer.score > rightPlayer.score) {
+    //play fanfare sound here
     ctx.fillStyle = "white"
-    ctx.font = '40px serif'
-    ctx.fillText("Left Player is the winner!", 150, 200)
+    ctx.font = '50px serif'
+    ctx.fillText(`Left Player is the winner! Score: ${leftPlayer.score}`, 90, 250)
   } else {
+    //play fanfare sound here
     ctx.fillStyle = "white"
-    ctx.font = '40px serif'
-    ctx.fillText("Right Player is the winner!", 150, 200)
+    ctx.font = '60px serif'
+    ctx.fillText(`Right Player is the winner! Score: ${rightPlayer.score}`, 90, 250)
   }
+
+  leftPlayer.score = 0
+  rightPlayer.score = 0
   
 }
 
-// function game(){
-//   updateCanvas()
-//   drawEverything();
-// }
-// // number of frames per second
-// let framePerSecond = 50;
+window.onload = () => {
 
-// //call the game function 50 times every 1 Sec
-// let loop = setInterval(game,1000/framePerSecond);
+  document.getElementById('start-button').onclick = () => {
 
-
-// function startGame() {
-//   gameOn = true
-
-//   obstaclesArray= []
-//   player.x = startingX
-//   player.y = startingY
-
-//   ctx.drawImage(road, 0, 0, 500, 700);
-//   player.draw();
-//   createObstacle();
-//   animationLoop();
-// }
-
-// function gameOver(){
-//   gameOn = false
+      if (gameOn === false) {
+        console.log('starting game')
+        //play starting music
+        startGame();
+      }
+  };
 
 
-//   console.log("Game over")
-//   clearInterval(animationId)
-//   clearInterval(intervalId)
 
-//   ctx.clearRect(0, 0, 500, 700);
-//   ctx.fillStyle = 'black'
-//   ctx.fillRect(0, 0, 500, 700);
+  document.addEventListener('keydown', e => {
+      switch (e.keyCode) {
+        case 38:
+          rightPlayer.moveUp();
+          break;
+        case 40:
+          rightPlayer.moveDown();
+          break;
+        case 87:
+          leftPlayer.moveUp();
+          break;
+        case 83:
+          leftPlayer.moveDown();
+          break;
+      }
+    
+    });
   
+}
 
-//   if (score > 14) {
-//     ctx.fillStyle = "white"
-//     ctx.font = '40px serif'
-//     ctx.fillText("You've won!", 150, 200)
-//   } else {
-//     ctx.fillStyle = "white"
-//     ctx.font = '40px serif'
-//     ctx.fillText("You lose!", 150, 200)
-//   }
-  
-//   obstaclesArray = []
-//   score = 0;
 
- 
-// }
 
 
 
