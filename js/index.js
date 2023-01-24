@@ -29,10 +29,15 @@ const leftPlayer = {
   speed: 2,
   score: 0,
   moveUp: function () {
-    this.positionY = this.positionY - 5
+    if (this.positionY >=  0){
+      this.positionY = this.positionY - 10
+    }
+    
   },
   moveDown: function () {
-  this.positionY = this.positionY + 5
+    if ((this.positionY+ leftPlayer.height) <= canvas.height){
+      this.positionY = this.positionY +10
+    }
   },
 
 }
@@ -47,10 +52,15 @@ const rightPlayer = {
   speed: 2,
   score: 0,
   moveUp: function () {
-    this.positionY = this.positionY - 5
+    if (this.positionY >=  0){
+      this.positionY = this.positionY - 10
+    }
+    
   },
   moveDown: function () {
-  this.positionY = this.positionY + 5
+    if ((this.positionY+ leftPlayer.height) <= canvas.height){
+      this.positionY = this.positionY +10
+    }
   },
 }
 
@@ -67,17 +77,13 @@ const keyPressed = {
 
 window.onload = () => {
 
+  document.getElementById('start-button').onclick = () => {
+      if (gameOn === false) {
+        startGame();
+      }
+  };
 
-  let framesPerSecond = 30;
-  setInterval(() => {
 
-    drawEverything()
-    // console.log('draw all')
-
-    updateCanvas()
-    // console.log('update all')
-
-  }, 1000/framesPerSecond);
 
   document.addEventListener('keydown', e => {
       switch (e.keyCode) {
@@ -106,7 +112,7 @@ function resetBall(){
   ball.velocityX = -ball.velocityX
 }
 
-function collision(b,p){
+function collission(b,p){
 
   p.top = p.positionY;
   p.bottom = p.positionY + p.height;
@@ -131,22 +137,17 @@ function updateCanvas(){
   if (ball.y + ball.radius > canvas.height || ball.y - ball.radius < 0){
     ball.velocityY = -ball.velocityY
   }
-  //identifying which side the ball
+  //identifying which side the ball is
   if (ball.x < (canvas.width/2)){
-    
     player = leftPlayer;
-
-
-    
   } else {
     player = rightPlayer;
-
   }
 
   // console.log(player)
 
-  //check collision
-  if (collision(ball, player)){
+  //check collission
+  if (collission(ball, player)){
     let collidePoint = (ball.y - (player.positionY + (player.height/2)));
     collidePoint = collidePoint/(player.height/2);
     console.log("collide point", player)
@@ -155,30 +156,23 @@ function updateCanvas(){
     let angleRad = (Math.PI/4)*collidePoint;
     
     if (ball.x < canvas.width/2){
-    
-      console.log("flip")
-      console.log("ball x", ball.x)
-      console.log("canvas width", canvas.width)
       direction = 1;
     } else {
-
-      // console.log("ball x", ball.x)
-      // console.log("canvas width", canvas.width)
-      console.log("other side")
       direction = -1;
-  
     }
 
     ball.velocityX = direction * ball.speed * Math.cos(angleRad);
     ball.velocityY = direction * ball.speed * Math.sin(angleRad);
 
-    ball.speed +=0.1;
-
+    ball.speed +=1;
   }
+
+
+
   //changing score
 
   if (ball.x - ball.radius < 0){
-    console.log("Ball", ball)
+    // console.log("Ball", ball)
     rightPlayer.score++;
     resetBall();
   }else if (ball.x + ball.radius > canvas.width){
@@ -211,16 +205,16 @@ function drawText(text, x, y, color){
   ctx.fillText(text, x, y);
 }
 
+function drawNet(){
+  ctx.beginPath();
+  ctx.setLineDash([10, 10]);
+  ctx.moveTo(canvas.width/2, 0);
+  ctx.lineTo(canvas.width/2, canvas.width);
+  ctx.strokeStyle = "white"
+  ctx.stroke();
+}
 
-//function to draw the dotted line (net)
-// function drawDashedLine(pattern) {
-//   ctx.beginPath();
-//   ctx.setLineDash(pattern);
-//   ctx.moveTo(0,y);
-//   ctx.lineTo(canvas.width/2, y);
-//   ctx.stroke();
-//   y += 10;
-// }
+
 
 
 
@@ -228,13 +222,18 @@ function drawText(text, x, y, color){
 
 function drawEverything(){
   //the arena
-  drawRect(0, 0, canvas.width, canvas.height, 'black'); 
+  drawRect(0, 0, canvas.width, canvas.height, 'black');
+  
+  
+  drawNet();
+  console.log('drawing net')
 
   //The score
   drawText(leftPlayer.score, canvas.width/4, canvas.height/5, "white")
   drawText(rightPlayer.score, 3*canvas.width/4, canvas.height/5, "white")
 
   //the lines in the middle
+  
   // drawDashedLine([10, 10]);
   // console.log('drawing net') 
 
@@ -249,6 +248,55 @@ function drawEverything(){
  
 }
 
+
+
+function startGame() {
+
+  gameOn = true
+  let framesPerSecond = 30;
+
+  setInterval(() => {
+
+    drawEverything()
+    // console.log('draw all')
+
+    updateCanvas()
+    // console.log('update all')
+
+  }, 1000/framesPerSecond);
+
+}
+
+
+function gameOver() {
+  gameOn = false
+
+
+//resest everything : score, ball position, ball speed...
+  clearInterval(animationId)
+  clearInterval(intervalId)
+
+  console.log("Game over")
+  
+  
+  ctx.clearRect(0,0,500,700)
+  ctx.fillStyle = 'black'
+  ctx.fillRect(0,0,500,700)
+
+  //declare winner below compare leftPaddle.score to rightPaddle.score
+  
+  if (leftPlayer.score > rightPlayer.score) {
+    ctx.fillStyle = "white"
+    ctx.font = '40px serif'
+    ctx.fillText("Left Player is the winner!", 150, 200)
+  } else {
+    ctx.fillStyle = "white"
+    ctx.font = '40px serif'
+    ctx.fillText("Right Player is the winner!", 150, 200)
+  }
+  
+}
+
 // function game(){
 //   updateCanvas()
 //   drawEverything();
@@ -258,50 +306,6 @@ function drawEverything(){
 
 // //call the game function 50 times every 1 Sec
 // let loop = setInterval(game,1000/framePerSecond);
-
-
-
-//this is the keys event --- modify for keys (W S Up Down)
-// document.addEventListener('keydown', e => {
-//   switch (e.keyCode) {
-//     case 38:
-//       player.moveUp();
-//       break;
-//     case 40:
-//       player.moveDown();
-//       break;
-//     case 37:
-//       player.moveLeft();
-//       break;
-//     case 39:
-//       player.moveRight();
-//       break;
-//   }
-
-// });
-
-//this would go inside of each player as a method that would be called
-//when the corresponding key is pressed
-// moveLeft: function() {
-//   this.x = this.x - 5
-// },
-// moveRight: function() {
-//   this.x = this.x + 5
-// },
-// moveUp: function () {
-//   this.y = this.y - 5
-// },
-// moveDown: function () {
-//   this.y = this.y + 5
-// },
-
-// this is to click "start" button
-// document.getElementById('start-button').onclick = () => {
-  //     if (gameOn === false) {
-  //       startGame();
-  //     }
-  //   };
-
 
 
 // function startGame() {
