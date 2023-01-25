@@ -1,6 +1,5 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-
 // ============================================================================
 
 let player;
@@ -167,8 +166,7 @@ function startGame() {
 // ============================================================================
 
 // Animate function implements the use of "requestAnimationFrame"
-// Animate function moves the ball, moves the paddles within the canvas
-// Animate draws the arena
+// Animate updates the canvas and draws the board
 function animate () {
     animationId = requestAnimationFrame(animate);
     ctx.fillStyle = 'black';
