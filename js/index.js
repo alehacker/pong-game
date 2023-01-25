@@ -20,13 +20,13 @@ let startDiv = document.getElementById("start-screen");
 let gameEnded = document.getElementById("game-over");
 
 let bounceSound = document.createElement("audio");
-bounceSound.src = "../sounds/pongbounce.wav";
+bounceSound.src = "sounds/pongbounce.wav";
 
 let cheerSound = document.createElement("audio");
-cheerSound.src = "../sounds/cheer.wav";
+cheerSound.src = "sounds/cheer.wav";
 
 let offGridSound = document.createElement("audio");
-offGridSound.src = "../sounds/bounceoff.wav";
+offGridSound.src = "sounds/bounceoff.wav";
 
 // ============================================================================
 
