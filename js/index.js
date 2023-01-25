@@ -6,6 +6,13 @@ const ctx = canvas.getContext("2d");
 let player;
 let direction;
 
+let keys = {
+    w: false,
+    s: false,
+    upArrow: false,
+    downArrow: false
+}
+
 let gameOn = false;
 
 let framesPerSecond = 30;
@@ -28,9 +35,9 @@ const ball = {
     x: canvas.width / 2,
     y: canvas.height / 2,
     radius: 10,
-    speed: 5,
-    velocityX: 5,
-    velocityY: 5,
+    speed: 10,
+    velocityX: 8,
+    velocityY: 8,
     color: "white",
 };
 
@@ -43,16 +50,19 @@ const leftPlayer = {
     player: "left",
     speed: 2,
     score: 0,
-    moveUp: function () {
-        if (this.positionY >= 0) {
-            this.positionY = this.positionY - 10;
-        }
+    updatePaddle: function () {
+        this.drawPaddle();
+        this.positionY += this.speed;
     },
-    moveDown: function () {
-        if (this.positionY + leftPlayer.height <= canvas.height) {
-            this.positionY = this.positionY + 10;
-        }
-    },
+    drawPaddle: function () {
+        drawRect(
+        leftPlayer.positionX,
+        leftPlayer.positionY,
+        leftPlayer.width,
+        leftPlayer.height,
+        leftPlayer.color
+        );
+    }
 };
 
 const rightPlayer = {
@@ -64,16 +74,20 @@ const rightPlayer = {
     player: "right",
     speed: 2,
     score: 0,
-    moveUp: function () {
-        if (this.positionY >= 0) {
-            this.positionY = this.positionY - 10;
-        }
+    updatePaddle: function () {
+        this.drawPaddle();
+        this.positionY += this.speed;
     },
-    moveDown: function () {
-        if (this.positionY + leftPlayer.height <= canvas.height) {
-            this.positionY = this.positionY + 10;
-        }
-    },
+    drawPaddle: function () {
+        drawRect(
+        rightPlayer.positionX,
+        rightPlayer.positionY,
+        rightPlayer.width,
+        rightPlayer.height,
+        rightPlayer.color
+        );
+    }
+
 };
 
 // ============================================================================
@@ -81,14 +95,12 @@ const rightPlayer = {
 window.onload = () => {
     document.getElementById("start-button").onclick = () => {
         if (gameOn === false) {
-            console.log("starting game");
             startGame();
         }
     };
 
     document.getElementById("restart-button").onclick = () => {
         if (gameOn === false) {
-            console.log("re-starting game");
             startGame();
         }
     };
@@ -96,16 +108,33 @@ window.onload = () => {
     document.addEventListener("keydown", (e) => {
         switch (e.keyCode) {
             case 38:
-                rightPlayer.moveUp();
+                keys.upArrow = true;
                 break;
             case 40:
-                rightPlayer.moveDown();
+                keys.downArrow = true;
                 break;
             case 87:
-                leftPlayer.moveUp();
+                keys.w = true;
                 break;
             case 83:
-                leftPlayer.moveDown();
+                keys.s = true;
+                break;
+        }
+    });
+
+    document.addEventListener("keyup", (e) => {
+        switch (e.keyCode) {
+            case 38:
+                keys.upArrow = false;
+                break;
+            case 40:
+                keys.downArrow = false;
+                break;
+            case 87:
+                keys.w = false;
+                break;
+            case 83:
+                keys.s = false;
                 break;
         }
     });
@@ -121,9 +150,6 @@ function startGame() {
 
     gameOn = true;
 
-    gameLoop();
-    drawLoop();
-
     startDiv.style.display = "none";
     canvas.style.display = "block";
     gameEnded.style.display = "none";
@@ -133,25 +159,99 @@ function startGame() {
     leftPlayer.positionY = canvas.height / 2 - 100 / 2;
     rightPlayer.positionX = canvas.width - 20;
     rightPlayer.positionY = canvas.height / 2 - 100 / 2;
-}
 
-// gameLoop manages the game state on the specified interval.
-function gameLoop() {
-    gameIntervalId = setInterval(() => {
-        updateCanvas();
-        // console.log('update all')
-    }, 1000 / framesPerSecond);
-}
 
-// drawLoop renders the game ui and updates the ui on the specified interval.
-function drawLoop() {
-    arenaIntervalId = setInterval(() => {
-        drawBoard();
-        // console.log(' draw all')
-    }, 1000 / framesPerSecond);
+    animate();
 }
 
 // ============================================================================
+
+// Animate function implements the use of "requestAnimationFrame"
+// Animate function moves the ball, moves the paddles within the canvas
+// Animate draws the arena
+function animate () {
+    animationId = requestAnimationFrame(animate);
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    drawBoard();
+
+    switch(true) {
+        case (leftPlayer.positionY + leftPlayer.height > canvas.height):
+            keys.s = false;
+            if (keys.w) {
+                leftPlayer.speed = -12;
+            } else if (keys.s) {
+                leftPlayer.speed = 12;
+            } else {
+                leftPlayer.speed = 0;
+            }
+            break;
+
+        case (leftPlayer.positionY < 0) :
+            keys.w = false;
+            if (keys.w) {
+            leftPlayer.speed = -12;
+            } else if (keys.s) {
+            leftPlayer.speed = 12;
+            } else {
+            leftPlayer.speed = 0;
+            }
+            break;
+        
+        default:
+            if (keys.w) {
+                leftPlayer.speed = -12;
+            } else if (keys.s) {
+                leftPlayer.speed = 12;
+            } else {
+                leftPlayer.speed = 0;
+            }
+            break;
+    }
+
+    switch(true) {
+        case (rightPlayer.positionY + rightPlayer.height > canvas.height):
+            keys.downArrow = false;
+            if (keys.upArrow) {
+            rightPlayer.speed = -12;
+            } else if (keys.downArrow) {
+            rightPlayer.speed = 12;
+            } else {
+            rightPlayer.speed = 0;
+            }
+            break;
+        
+        case (rightPlayer.positionY < 0):
+            keys.upArrow = false;
+            if (keys.upArrow) {
+            rightPlayer.speed = -12;
+            } else if (keys.downArrow) {
+            rightPlayer.speed = 12;
+            } else {
+            rightPlayer.speed = 0;
+            }
+            break;
+
+        default:
+            if (keys.upArrow) {
+                rightPlayer.speed = -12;
+            } else if (keys.downArrow) {
+                rightPlayer.speed = 12;
+            } else {
+                rightPlayer.speed = 0;
+            }   
+            break;
+    }
+
+    leftPlayer.updatePaddle();
+    rightPlayer.updatePaddle();
+    
+
+    updateCanvas();
+
+   
+}
 
 // updateCanvas does the following.
 function updateCanvas() {
@@ -231,7 +331,7 @@ function handlePaddleCollision(player) {
     ball.velocityX = direction * ball.speed * Math.cos(angleRad);
     ball.velocityY = direction * ball.speed * Math.sin(angleRad);
 
-    ball.speed += 1;
+    ball.speed += 3;
 }
 
 // checkPointScored checks to see if a player scored and changes the game state.
@@ -267,7 +367,7 @@ function whoScored(b) {
 function resetBall() {
     ball.x = canvas.width / 2;
     ball.y = canvas.height / 2;
-    ball.speed = 5;
+    ball.speed = 10;
     ball.velocityX = -ball.velocityX;
 }
 
@@ -279,8 +379,7 @@ function checkGameOver() {
 
     gameOn = false;
 
-    clearInterval(gameIntervalId);
-    clearInterval(arenaIntervalId);
+    cancelAnimationFrame(animationId);
 
     let text;
     switch (true) {
@@ -326,24 +425,6 @@ function drawBoard() {
         (3 * canvas.width) / 4,
         canvas.height / 5,
         "white"
-    );
-
-    // Draw the left paddle.
-    drawRect(
-        leftPlayer.positionX,
-        leftPlayer.positionY,
-        leftPlayer.width,
-        leftPlayer.height,
-        leftPlayer.color
-    );
-
-    // Draw the right paddle.
-    drawRect(
-        rightPlayer.positionX,
-        rightPlayer.positionY,
-        rightPlayer.width,
-        rightPlayer.height,
-        rightPlayer.color
     );
 
     drawBall(ball.x, ball.y, 10, "white");
