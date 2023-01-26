@@ -371,7 +371,7 @@ function resetBall() {
 
 // checkGameOver validates if there is a winner and changes the game state.
 function checkGameOver() {
-    if (!(rightPlayer.score === 3 || leftPlayer.score === 3)) {
+    if (!(rightPlayer.score === 6 || leftPlayer.score === 6)) {
         return;
     }
 
