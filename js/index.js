@@ -1,34 +1,24 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-// ============================================================================
+
+// =============================================================================
 
 let player;
 let direction;
-
-let keys = {
-    w: false,
-    s: false,
-    upArrow: false,
-    downArrow: false
-}
-
 let gameOn = false;
-
 let framesPerSecond = 30;
 
 let startDiv = document.getElementById("start-screen");
 let gameEnded = document.getElementById("game-over");
-
 let bounceSound = document.createElement("audio");
-bounceSound.src = "sounds/pongbounce.wav";
-
 let cheerSound = document.createElement("audio");
-cheerSound.src = "sounds/cheer.wav";
-
 let offGridSound = document.createElement("audio");
+
+bounceSound.src = "sounds/pongbounce.wav";
+cheerSound.src = "sounds/cheer.wav";
 offGridSound.src = "sounds/bounceoff.wav";
 
-// ============================================================================
+// =============================================================================
 
 const ball = {
     x: canvas.width / 2,
@@ -47,21 +37,10 @@ const leftPlayer = {
     height: 100,
     color: "white",
     player: "left",
-    speed: 2,
+    move: 0,
     score: 0,
-    updatePaddle: function () {
-        this.drawPaddle();
-        this.positionY += this.speed;
-    },
-    drawPaddle: function () {
-        drawRect(
-        leftPlayer.positionX,
-        leftPlayer.positionY,
-        leftPlayer.width,
-        leftPlayer.height,
-        leftPlayer.color
-        );
-    }
+    keyUp: false,
+    keyDown: false,
 };
 
 const rightPlayer = {
@@ -71,25 +50,13 @@ const rightPlayer = {
     height: 100,
     color: "white",
     player: "right",
-    speed: 2,
+    move: 0,
     score: 0,
-    updatePaddle: function () {
-        this.drawPaddle();
-        this.positionY += this.speed;
-    },
-    drawPaddle: function () {
-        drawRect(
-        rightPlayer.positionX,
-        rightPlayer.positionY,
-        rightPlayer.width,
-        rightPlayer.height,
-        rightPlayer.color
-        );
-    }
-
+    keyUp: false,
+    keyDown: false,
 };
 
-// ============================================================================
+// =============================================================================
 
 window.onload = () => {
     document.getElementById("start-button").onclick = () => {
@@ -107,16 +74,16 @@ window.onload = () => {
     document.addEventListener("keydown", (e) => {
         switch (e.keyCode) {
             case 38:
-                keys.upArrow = true;
+                rightPlayer.keyUp = true;
                 break;
             case 40:
-                keys.downArrow = true;
+                rightPlayer.keyDown = true;
                 break;
             case 87:
-                keys.w = true;
+                leftPlayer.keyUp = true;
                 break;
             case 83:
-                keys.s = true;
+                leftPlayer.keyDown = true;
                 break;
         }
     });
@@ -124,22 +91,22 @@ window.onload = () => {
     document.addEventListener("keyup", (e) => {
         switch (e.keyCode) {
             case 38:
-                keys.upArrow = false;
+                rightPlayer.keyUp = false;
                 break;
             case 40:
-                keys.downArrow = false;
+                rightPlayer.keyDown = false;
                 break;
             case 87:
-                keys.w = false;
+                leftPlayer.keyUp = false;
                 break;
             case 83:
-                keys.s = false;
+                leftPlayer.keyDown = false;
                 break;
         }
     });
 };
 
-// ============================================================================
+// =============================================================================
 
 // startGame starts the game loops for the game.
 function startGame() {
@@ -159,102 +126,34 @@ function startGame() {
     rightPlayer.positionX = canvas.width - 20;
     rightPlayer.positionY = canvas.height / 2 - 100 / 2;
 
-
-    animate();
+    // Start the game animation.
+    requestAnimationFrame(animate);
 }
 
-// ============================================================================
+// =============================================================================
 
-// Animate function implements the use of "requestAnimationFrame"
-// Animate updates the canvas and draws the board
-function animate () {
-    animationId = requestAnimationFrame(animate);
-    ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+// Animate is called by the browser before it's next refresh. Game state is
+// checked and changes to the ui applied.
+function animate() {
+    // Check for any collision and update state.
+    checkCollision();
 
+    // Check if the game is over after any last collision.
+    if (checkGameOver()) {
+        return;
+    }
+
+    // Register the next animation.
+    requestAnimationFrame(animate);
+
+    // Make all the UI and state changes.
     drawBoard();
-
-    switch(true) {
-        case (leftPlayer.positionY + leftPlayer.height > canvas.height):
-            keys.s = false;
-            if (keys.w) {
-                leftPlayer.speed = -12;
-            } else if (keys.s) {
-                leftPlayer.speed = 12;
-            } else {
-                leftPlayer.speed = 0;
-            }
-            break;
-
-        case (leftPlayer.positionY < 0) :
-            keys.w = false;
-            if (keys.w) {
-            leftPlayer.speed = -12;
-            } else if (keys.s) {
-            leftPlayer.speed = 12;
-            } else {
-            leftPlayer.speed = 0;
-            }
-            break;
-        
-        default:
-            if (keys.w) {
-                leftPlayer.speed = -12;
-            } else if (keys.s) {
-                leftPlayer.speed = 12;
-            } else {
-                leftPlayer.speed = 0;
-            }
-            break;
-    }
-
-    switch(true) {
-        case (rightPlayer.positionY + rightPlayer.height > canvas.height):
-            keys.downArrow = false;
-            if (keys.upArrow) {
-            rightPlayer.speed = -12;
-            } else if (keys.downArrow) {
-            rightPlayer.speed = 12;
-            } else {
-            rightPlayer.speed = 0;
-            }
-            break;
-        
-        case (rightPlayer.positionY < 0):
-            keys.upArrow = false;
-            if (keys.upArrow) {
-            rightPlayer.speed = -12;
-            } else if (keys.downArrow) {
-            rightPlayer.speed = 12;
-            } else {
-            rightPlayer.speed = 0;
-            }
-            break;
-
-        default:
-            if (keys.upArrow) {
-                rightPlayer.speed = -12;
-            } else if (keys.downArrow) {
-                rightPlayer.speed = 12;
-            } else {
-                rightPlayer.speed = 0;
-            }   
-            break;
-    }
-
-    leftPlayer.updatePaddle();
-    rightPlayer.updatePaddle();
-    
-
-    updateCanvas();
-
-   
+    movePaddles();
+    moveBall();
 }
 
-// updateCanvas does the following.
-function updateCanvas() {
-    moveBall();
-
+// checkCollision detects if a collision occurred or if a point was scored.
+function checkCollision() {
     switch (true) {
         case isWallCollision(ball):
             handleWallCollision();
@@ -270,8 +169,54 @@ function updateCanvas() {
 
         default:
             checkPointScored();
-            checkGameOver();
     }
+}
+
+// movePaddles changes the position of the paddles.
+function movePaddles() {
+    updatePaddle(leftPlayer);
+    updatePaddle(rightPlayer);
+}
+
+// updatePaddle updates the position of the specified paddle.
+function updatePaddle(player) {
+    // Determine if we are at the top of bottom of the game area already.
+    // Setting these to false will allow the move code next to ignore the
+    // move event.
+    switch (true) {
+        case player.positionY + player.height > canvas.height:
+            player.keyDown = false;
+            break;
+
+        case player.positionY < 0:
+            player.keyUp = false;
+            break;
+    }
+
+    // Adjust the amount of the pixels to move paddle.
+    switch (true) {
+        case player.keyUp:
+            player.move = -12;
+            break;
+        case player.keyDown:
+            player.move = 12;
+            break;
+        default:
+            player.move = 0;
+            break;
+    }
+
+    // Set the Y position.
+    player.positionY += player.move;
+
+    // Draw the new location of the paddle.
+    drawRect(
+        player.positionX,
+        player.positionY,
+        player.width,
+        player.height,
+        player.color
+    );
 }
 
 // moveBall changes the position of the ball by the current velocity.
@@ -334,7 +279,7 @@ function handlePaddleCollision(player) {
 
 // checkPointScored checks to see if a player scored and changes the game state.
 function checkPointScored() {
-    switch (whoScored(ball)) {
+    switch (isScore(ball)) {
         case "right":
             offGridSound.play();
             rightPlayer.score++;
@@ -349,8 +294,8 @@ function checkPointScored() {
     }
 }
 
-// whoScored detects which player may have scored.
-function whoScored(b) {
+// isScore detects which player may have scored.
+function isScore(b) {
     switch (true) {
         case b.x - b.radius < 0:
             return "right";
@@ -376,8 +321,6 @@ function checkGameOver() {
     }
 
     gameOn = false;
-
-    cancelAnimationFrame(animationId);
 
     let text;
     switch (true) {
@@ -405,12 +348,17 @@ function checkGameOver() {
 
     startDiv.style.display = "none";
     gameEnded.style.display = "block";
+
+    return true;
 }
 
-// ============================================================================
+// =============================================================================
 
 // drawBoard draws the entire game board with game state.
 function drawBoard() {
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     drawRect(0, 0, canvas.width, canvas.height, "black");
     drawNet();
 
